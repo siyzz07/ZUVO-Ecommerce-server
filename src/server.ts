@@ -89,7 +89,7 @@ app.use('/api/categories', categoryRoutes);
 
 // Base Route
 app.get('/', (req: express.Request, res: express.Response) => {
-  res.send('OZACO API is running...');
+  res.send('ZUVO API is running...');
 });
 
 // Error handling middleware

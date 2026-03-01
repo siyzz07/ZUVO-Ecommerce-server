@@ -6,6 +6,7 @@ export interface IShopSettings extends Document {
   address: string;
   phone: string;
   email: string;
+  profilePic: string;
   coverPhotos: string[]; // Up to 4
   location: {
     lat: number;
@@ -20,6 +21,7 @@ const ShopSettingsSchema: Schema = new Schema({
   address: { type: String },
   phone: { type: String },
   email: { type: String },
+  profilePic: { type: String, default: '' },
   coverPhotos: { type: [String], validate: [(val: string[]) => val.length <= 4, '{PATH} exceeds the limit of 4'] },
   location: {
     lat: { type: Number, default: 28.6139 }, // Default New Delhi

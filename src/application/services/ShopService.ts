@@ -9,11 +9,12 @@ export class ShopService {
     if (!settings) {
       // Return default empty settings if none exist
       return {
-        shopName: 'OZACO Mobile Hub',
+        shopName: 'ZUVO Mobile Hub',
         description: 'Premium Gadget Store',
         address: '',
         phone: '',
         email: '',
+        profilePic: '',
         coverPhotos: [],
         location: { lat: 28.6139, lng: 77.2090 }
       };
