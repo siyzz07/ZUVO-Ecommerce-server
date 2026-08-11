@@ -7,13 +7,7 @@
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "paths": {
-            "*": [
-                "./node_modules/*",
-                "./src/*"
-            ]
-        }
+        "forceConsistentCasingInFileNames": true
     },
     "include": [
         "src/**/*"
