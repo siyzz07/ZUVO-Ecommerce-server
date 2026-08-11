@@ -14,8 +14,8 @@ export class ShopService {
         address: '',
         phone: '',
         email: '',
-        profilePic: '',
-        coverPhotos: [],
+        profilePic: '/zuvo_logo.png',
+        coverPhotos: ['/zuvo_cover.png', '/zuvo_cover_2.png'],
         location: { lat: 28.6139, lng: 77.2090 }
       };
     }

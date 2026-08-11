@@ -13,6 +13,7 @@ import { connectDB } from './config/db';
 import logger from './config/logger';
 import User from './core/entities/User';
 import Product from './core/entities/Product';
+import ShopSettings from './core/entities/ShopSettings';
 
 dotenv.config();
 
@@ -21,7 +22,25 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+
+const allowedOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+    : [];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, postman)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
+
 app.use(helmet({
     contentSecurityPolicy: false
 }));
@@ -41,13 +60,14 @@ const initializeApp = async () => {
         // 1. Connect to Database
         await connectDB();
 
-        // 2. Seed Default Admin (admin123@gmail.com / 1234567)
-        const adminEmail = 'admin123@gmail.com';
+        // 2. Seed Default Admin from Environment Variables
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin123@gmail.com';
+        const adminPassword = process.env.ADMIN_PASSWORD || '1234567';
         const adminExists = await User.findOne({ email: adminEmail });
         if (!adminExists) {
             const admin = new User({
                 email: adminEmail,
-                password: '1234567',
+                password: adminPassword,
                 role: 'admin'
             });
             await admin.save();
@@ -72,6 +92,37 @@ const initializeApp = async () => {
             ];
             await Product.insertMany(samples);
             logger.info('📦 Inventory Initialized with Sample Stock');
+        }
+
+        // 4. Seed Shop Settings
+        let settings = await ShopSettings.findOne();
+        if (!settings) {
+            settings = new ShopSettings({
+                shopName: 'ZUVO Mobile Hub',
+                description: 'Premium Gadget Store. High performance gadgets for the modern lifestyle.',
+                address: '123 Premium Street, Hub Lane, Gadget City, India',
+                phone: '+91 98765 43210',
+                email: 'support@zuvo.com',
+                profilePic: '/zuvo_logo.png',
+                coverPhotos: ['/zuvo_cover.png', '/zuvo_cover_2.png'],
+                location: { lat: 28.6139, lng: 77.2090 }
+            });
+            await settings.save();
+            logger.info('🏢 Shop Settings Initialized with Default Details and Banners');
+        } else {
+            let updated = false;
+            if (!settings.profilePic) {
+                settings.profilePic = '/zuvo_logo.png';
+                updated = true;
+            }
+            if (!settings.coverPhotos || settings.coverPhotos.length === 0) {
+                settings.coverPhotos = ['/zuvo_cover.png', '/zuvo_cover_2.png'];
+                updated = true;
+            }
+            if (updated) {
+                await settings.save();
+                logger.info('🏢 Existing Shop Settings Updated with Default Banners/Logo');
+            }
         }
     } catch (error: any) {
         logger.error(`❌ Initialization Error: ${error.message}`);
